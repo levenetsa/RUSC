@@ -3,7 +3,6 @@ import model.*;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public final class MyStrategy implements Strategy {
     double turn;
@@ -21,7 +20,7 @@ public final class MyStrategy implements Strategy {
     boolean brackes;
     int backDrive = 0, fag = 0;
     int start;
-    boolean flag =false;
+    boolean flag = false;
 
     private void wtd(TileType tileType, TileType whish, Car self, World world, Game game, Move move, Point[] way) {
         double spx = self.getSpeedX();
@@ -407,29 +406,33 @@ public final class MyStrategy implements Strategy {
         if (c.compareTo(TileType.EMPTY) == 0)
             return true;
         if (c.compareTo(TileType.HORIZONTAL) == 0) {
-            if (i !=1) return true;
+            if (i != 1) return true;
         }
         if (c.compareTo(TileType.VERTICAL) == 0) {
             if (j != 1) return true;
         }
         if (c.compareTo(TileType.LEFT_TOP_CORNER) == 0) {
-            if ((i == 2 && j == 1)||(i==1 && j == 2)) return true;
+            if ((i == 2 && j == 1) || (i == 1 && j == 2)) return true;
         }
 
         if (c.compareTo(TileType.BOTTOM_HEADED_T) == 0) {
-            if (i == 1 && j == 0) return false; else return true;
+            if (i == 1 && j == 0) return false;
+            else return true;
         }
 
         if (c.compareTo(TileType.LEFT_HEADED_T) == 0) {
-            if (i == 2 && j == 1) return false; else return true;
+            if (i == 2 && j == 1) return false;
+            else return true;
         }
 
         if (c.compareTo(TileType.RIGHT_HEADED_T) == 0) {
-            if (i == 0 && j == 1) return false; else return true;
+            if (i == 0 && j == 1) return false;
+            else return true;
         }
 
         if (c.compareTo(TileType.TOP_HEADED_T) == 0) {
-            if (i == 1 && j == 2) return false; else return true;
+            if (i == 1 && j == 2) return false;
+            else return true;
         }
 
         if (c.compareTo(TileType.CROSSROADS) == 0) {
@@ -437,13 +440,13 @@ public final class MyStrategy implements Strategy {
         }
 
         if (c.compareTo(TileType.RIGHT_TOP_CORNER) == 0) {
-            if ((i == 0 && j == 1)||(i==1 && j == 2)) return true;
+            if ((i == 0 && j == 1) || (i == 1 && j == 2)) return true;
         }
         if (c.compareTo(TileType.RIGHT_BOTTOM_CORNER) == 0) {
-            if ((i == 1 && j == 0)||(i==0 && j == 1)) return true;
+            if ((i == 1 && j == 0) || (i == 0 && j == 1)) return true;
         }
         if (c.compareTo(TileType.LEFT_BOTTOM_CORNER) == 0) {
-            if ((i == 1 && j == 0)||(i==2 && j == 1)) return true;
+            if ((i == 1 && j == 0) || (i == 2 && j == 1)) return true;
         }
         return false;
     }
@@ -459,7 +462,6 @@ public final class MyStrategy implements Strategy {
     Collection<TileType> RIGHT_TOP_CORNER;
     Collection<TileType> RIGHT_BOTTOM_CORNER;
     Collection<TileType> LEFT_BOTTOM_CORNER;
-
 
 
     private Point getTracks(Point c) {
@@ -496,7 +498,7 @@ public final class MyStrategy implements Strategy {
 
     }
 
-    private double getAlnge(Car self, TileType tiles[][], int[][] wayP) {
+    private double getAlnge(Car self, TileType tiles[][], int[][] wayP, boolean b) {
         //if (Math.sqrt(self.getSpeedX() * self.getSpeedX() + self.getSpeedY() * self.getSpeedY()) < 1)
         //    return self.getAngleTo(way[ind - 1].x, (int) way[ind - 1].y);
         if (ind > 1) {
@@ -520,7 +522,11 @@ public final class MyStrategy implements Strategy {
             }
             dPx = olddPx;
             dPy = olddPy;
-            return self.getAngleTo(way[ind - 2].x, (int) way[ind - 2].y);
+            if (b)
+                return self.getAngleTo(way[ind - 2].x, (int) way[ind - 2].y);
+            else
+
+                return self.getAngleTo(way[ind - 1].x, (int) way[ind - 1].y);
         }
     }
 
@@ -571,7 +577,7 @@ public final class MyStrategy implements Strategy {
 
     @Override
     public void move(Car self, World world, Game game, Move move) {
-        Car [] pl = world.getCars();
+        Car[] pl = world.getCars();
         int counter = 0;
         for (int i = 0; i < pl.length; i++)
             if (pl[i].isTeammate()) counter++;
@@ -582,7 +588,7 @@ public final class MyStrategy implements Strategy {
         if (!flag)
             start = game.getInitialFreezeDurationTicks() + 150;
         flag = true;
-        if (start>0) start--;
+        if (start > 0) start--;
         brackes = false;
         if (backDrive > 0) backDrive--;
         if (fag > 0) fag--;
@@ -605,11 +611,18 @@ public final class MyStrategy implements Strategy {
         way = new Point[200];
         ind = 0;
         getTracks(dest);
-        double ms = getAlnge(self, tiles, wayP);
+        double ms;
+        //TYT POMENIAL
+        if (Math.sqrt(self.getSpeedX() * self.getSpeedX() + self.getSpeedY() * self.getSpeedY()) < 7)
+            ms = getAlnge(self, tiles, wayP, false);
+        else
+            ms = getAlnge(self, tiles, wayP, true);
+        //TYT POMENIAL better examine map15
         if (ind >= 1 && start == 0)
             move.setWheelTurn(ms + corDirr(tiles[(int) way[ind - 1].x / 800][(int) way[ind - 1].y / 800], self));
         else move.setWheelTurn(ms);
-        if (Math.abs(ms)>Math.PI/5 && Math.sqrt(self.getSpeedX() * self.getSpeedX() + self.getSpeedY() * self.getSpeedY()) > 16) move.setBrake(true);
+        if (Math.abs(ms) > Math.PI / 5 && Math.sqrt(self.getSpeedX() * self.getSpeedX() + self.getSpeedY() * self.getSpeedY()) > 16)
+            move.setBrake(true);
         System.out.println(Math.sqrt(self.getSpeedX() * self.getSpeedX() + self.getSpeedY() * self.getSpeedY()));
         if (backDrive > 25) {
             move.setEnginePower(-0.8);
