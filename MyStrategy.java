@@ -482,7 +482,7 @@ public final class MyStrategy implements Strategy {
             ind++;
             return getTracks(new Point(c.x, c.y - 800));
         }
-        if (y < s - 1 && d[x][y] - 1 == d[x][y + 1]) {
+        if (y < s1 - 1 && d[x][y] - 1 == d[x][y + 1]) {
             way[ind] = new Point(c.x - 800 + 800, c.y);
             ind++;
             return getTracks(new Point(c.x, c.y + 800));
@@ -574,7 +574,7 @@ public final class MyStrategy implements Strategy {
         Car [] pl = world.getCars();
         int counter = 0;
         for (int i = 0; i < pl.length; i++)
-        if (pl[i].isTeammate()) counter++;
+            if (pl[i].isTeammate()) counter++;
         if (counter == 2) {
             move.setEnginePower(2);
             return;
